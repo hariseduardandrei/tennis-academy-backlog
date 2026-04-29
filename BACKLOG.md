@@ -2,7 +2,7 @@
 Date: 2026-04-29  
 Scope: Performance tennis academy (50–60 students, 3 admins, 10–15 coaches, 1 fitness trainer, 4 courts)  
 Platforms: Web (staff + student portal) → Mobile (React Native)  
-Backend: Kotlin (Ktor) + PostgreSQL  
+Backend: Kotlin (Spring Boot 3) + PostgreSQL  
 Payments: Manual monthly membership (no online payments)  
 Languages: Romanian (RO) + English (EN)  
 Notes: Two note fields required — internal (staff-only) and student-visible.
@@ -12,7 +12,7 @@ Notes: Two note fields required — internal (staff-only) and student-visible.
 ## 0) Repositories & structure
 **Repos**
 - `tennis-academy-meta` (git submodules, docs, high-level scripts)
-- `tennis-academy-backend` (Ktor API, DB, auth)
+- `tennis-academy-backend` (Spring Boot 3 API, DB, auth)
 - `tennis-academy-web` (Next.js web app)
 - `tennis-academy-mobile` (React Native / Expo)
 
@@ -80,28 +80,29 @@ Computed:
 
 ---
 
-## 4) Backend backlog (Ktor + Postgres)
+## 4) Backend backlog (Spring Boot 3 + Postgres)
 ### 4.1 Foundation
-- [ ] Initialize Ktor project (Gradle Kotlin DSL)
-- [ ] Add configuration system (HOCON or YAML) for dev/prod
-- [ ] Add Dockerfile for API
-- [ ] Add `docker-compose.yml` for local dev: API + Postgres
-- [ ] Add Flyway migrations + baseline migration
-- [ ] Add Exposed + HikariCP + Postgres driver
-- [ ] Add structured logging (request id, user id where possible)
+- [x] Initialize Spring Boot 3 project (Gradle Kotlin DSL)
+- [x] Add configuration system (application.yml) for dev/prod profiles
+- [x] Add Dockerfile for API (multi-stage, eclipse-temurin:21)
+- [x] Add `docker-compose.yml` for local dev: API + Postgres
+- [x] Add Flyway migrations + baseline migration
+- [x] Add Spring Data JPA + HikariCP + Postgres driver
+- [ ] Add structured logging (request id, user id via MDC)
 
 Acceptance criteria:
-- `docker compose up` starts API + DB, API health endpoint responds.
+- `docker compose up` starts API + DB, API health endpoint responds. ✅
 
 ### 4.2 Auth & users
 - [ ] DB: `users` table (uuid, email unique, password_hash, role, language, created_at)
-- [ ] Password hashing (BCrypt/Argon2)
-- [ ] JWT auth (access token)
+- [ ] Password hashing (BCrypt — `PasswordEncoder` bean already configured)
+- [x] JWT auth scaffold (jjwt 0.12, stateless `SecurityFilterChain`)
+- [ ] JWT filter implementation (`JwtAuthenticationFilter`)
 - [ ] Endpoints:
   - [ ] `POST /auth/login`
   - [ ] `GET /me`
 - [ ] Admin-only: create staff users endpoint (coach/trainer/admin)
-- [ ] RBAC middleware/route guards
+- [ ] RBAC via `@EnableMethodSecurity` + `@PreAuthorize` on handlers
 
 Acceptance criteria:
 - Admin can create coach user, coach can log in, `/me` returns role + language.
@@ -189,11 +190,12 @@ Acceptance criteria:
 - Admin can mark paid/unpaid and see overdue list.
 
 ### 4.9 Quality & security
-- [ ] Input validation (Kotlinx serialization + validation layer)
-- [ ] Standard error format (problem+json style)
-- [ ] Rate-limit login attempts (basic)
-- [ ] CORS configuration for web + mobile
-- [ ] Unit tests for conflict logic and permissions
+- [ ] Input validation (Bean Validation — `@Valid` on request DTOs)
+- [x] Standard error format (problem+json style via `@ControllerAdvice`)
+- [ ] Rate-limit login attempts (basic — e.g. Bucket4j or in-memory counter)
+- [ ] CORS configuration for web + mobile origins
+- [ ] Unit tests for conflict logic and permissions (JUnit 5 + MockK)
+- [ ] Integration tests with Testcontainers (Postgres)
 
 ---
 
