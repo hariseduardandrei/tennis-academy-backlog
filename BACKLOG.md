@@ -179,15 +179,15 @@ Acceptance criteria:
 - Student can only access own assigned sessions and sees only student_notes.
 
 ### 4.8 Billing (monthly membership, manual)
-- [ ] DB: `membership_month` unique(student_id, year, month)
-- [ ] Endpoints:
-  - [ ] `GET /billing/month?year=YYYY&month=M` (admin)
-  - [ ] `PATCH /billing/students/{id}/month?year=YYYY&month=M` (admin)
-- [ ] Report endpoint:
-  - [ ] `GET /billing/overdue?year=YYYY&month=M` (admin)
+- [x] DB: `membership_month` unique(student_id, year, month)
+- [x] Endpoints:
+  - [x] `GET /billing/month?year=YYYY&month=M` (admin)
+  - [x] `PATCH /billing/students/{id}/month?year=YYYY&month=M` (admin)
+- [x] Report endpoint:
+  - [x] `GET /billing/overdue?year=YYYY&month=M` (admin)
 
 Acceptance criteria:
-- Admin can mark paid/unpaid and see overdue list.
+- ✓ Admin can mark paid/unpaid and see overdue list.
 
 ### 4.9 Quality & security
 - [ ] Input validation (Bean Validation — `@Valid` on request DTOs)
