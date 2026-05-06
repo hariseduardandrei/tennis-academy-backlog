@@ -201,62 +201,67 @@ Acceptance criteria:
 
 ## 5) Web app backlog (Next.js)
 ### 5.1 Foundation
-- [ ] Initialize Next.js (TypeScript)
-- [ ] Add MUI + theme (light, modern)
-- [ ] Add i18n (RO/EN) with per-user preference
-- [ ] API client layer (fetch wrapper) + typed DTOs
-- [ ] Auth:
-  - login page
-  - token storage strategy (httpOnly cookie preferred; otherwise secure storage)
-  - route protection by role
+- [x] Initialize Next.js (TypeScript)
+- [x] Add MUI + theme (light, modern)
+- [x] Add i18n (RO/EN) with per-user preference
+- [x] API client layer (fetch wrapper) + typed DTOs
+- [x] Auth:
+  - [x] login page
+  - [x] token storage strategy (implemented with `localStorage`; httpOnly cookie still preferred target)
+  - [x] route protection by role
 
 Acceptance criteria:
 - User can log in, language switches, role-based navigation works.
 
 ### 5.2 Staff UX flows
 #### Today dashboard (courts view)
-- [ ] “Today” page:
-  - Court 1–4 columns/cards
-  - sessions grouped by court with time
-  - quick open “Complete session”
+- [x] “Today” page:
+  - [x] Court 1–4 columns/cards
+  - [x] sessions grouped by court with time
+  - [x] quick open “Complete session”
 - [ ] Conflict indicator badges
 
 Acceptance criteria:
 - Staff can see today’s schedule in one screen and open a session quickly.
 
 #### Week schedule (by court)
-- [ ] Week view grid:
-  - columns = courts
-  - time rows
-  - session blocks
-- [ ] Create/edit session modal:
-  - time, court, staff user, type, title
-  - student picker (search)
-- [ ] Conflict errors displayed clearly
+- [x] Week view grid:
+  - [x] columns = courts
+  - [x] time rows
+  - [x] session blocks
+- [x] Create/edit session modal:
+  - [x] time, court, staff user, type, title
+  - [x] student picker (search)
+  - [x] staff typeahead by first name/last name with selectable suggestions
+- [x] Conflict errors displayed clearly
+- [x] Quick actions on session block:
+  - [x] complete
+  - [x] edit
+  - [x] delete (with confirmation)
 
 Acceptance criteria:
 - Staff can create/edit sessions and assign students; conflicts are shown.
 
 #### Students
-- [ ] Students list with search/filter (active/inactive)
+- [x] Students list with search/filter (active/inactive)
 - [ ] Student profile:
-  - info
+  - [x] info
   - recent sessions + loads
   - membership status (month)
-- [ ] Admin action: create student login (set temp password and show once)
+- [x] Admin action: create student login (set temp password and show once)
 
 Acceptance criteria:
 - Staff can manage student profiles; admin can create login.
 
 #### Session completion
-- [ ] Session completion UI:
-  - list students in session
-  - attendance toggle
-  - RPE input 1–10
-  - duration (default from schedule)
-  - internal notes (staff-only)
-  - student-visible notes
-  - save button
+- [x] Session completion UI:
+  - [x] list students in session
+  - [x] attendance toggle
+  - [x] RPE input 1–10
+  - [x] duration (default from schedule)
+  - [x] internal notes (staff-only)
+  - [x] student-visible notes
+  - [x] save button
 - [ ] UX speed:
   - keyboard friendly
   - “copy previous values” optional (phase 2)
@@ -265,25 +270,107 @@ Acceptance criteria:
 - Coach can complete a session in under ~60 seconds.
 
 #### Billing (admin)
-- [ ] Month view table:
-  - students + status + due date + amount
-- [ ] Overdue filter
-- [ ] Mark paid/unpaid quickly
+- [x] Month view table:
+  - [x] students + status + due date + amount
+- [x] Overdue filter
+- [x] Mark paid/unpaid quickly
 
 Acceptance criteria:
 - Admin can see who is overdue and update status quickly.
 
 ### 5.3 Student portal (web)
 - [ ] Student home:
-  - upcoming sessions
-  - membership status
-- [ ] My Schedule week view (simpler than staff)
-- [ ] History:
-  - list sessions with load + student notes
-  - never show internal notes
+  - [x] upcoming sessions
+  - [ ] membership status
+- [x] My Schedule week view (simpler than staff)
+- [x] History:
+  - [x] list sessions with load + student notes
+  - [x] never show internal notes
 
 Acceptance criteria:
 - Student sees their schedule and notes in RO/EN.
+
+### 5.4 Implemented frontend inventory (current web parity baseline for mobile)
+Purpose: explicit list of what exists today in web, so mobile can target 1:1 parity.
+
+#### Routing and role entry points
+- [x] `/` auto-redirect:
+  - unauthenticated -> `/login`
+  - staff (`ADMIN`/`COACH`/`TRAINER`) -> `/today`
+  - `STUDENT` -> `/student`
+- [x] `/login` email/password login with API error mapping (`401` -> invalid credentials)
+- [x] Role-guarded layouts:
+  - [x] staff area (`/today`, `/schedule`, `/students`, `/students/[id]`, `/sessions/[id]/complete`)
+  - [x] admin-only area (`/billing`, `/users`)
+  - [x] student-only area (`/student`, `/student/schedule`, `/student/history`)
+
+#### Global app shell and UX primitives
+- [x] Shared responsive app shell (desktop permanent drawer + mobile temporary drawer)
+- [x] Role-aware navigation menus (staff vs student)
+- [x] User avatar menu with logout action
+- [x] Language toggle (`RO`/`EN`) persisted in `localStorage` (`ta_locale`)
+- [x] Global snackbar queue for success/error feedback
+- [x] Unified API client with typed DTOs, bearer token injection, and problem+json error propagation
+
+#### Staff pages and flows
+- [x] `Today` dashboard (`/today`):
+  - [x] sessions grouped by court
+  - [x] time range + session type chip + title
+  - [x] quick action -> session completion page
+- [x] Weekly schedule (`/schedule`):
+  - [x] week navigation (prev/next/current week)
+  - [x] day sections with court-column time grid
+  - [x] session visual blocks (colored by type)
+  - [x] quick actions per block: complete, edit, delete
+  - [x] create/edit modal (`SessionModal`)
+    - [x] start/end datetime
+    - [x] court select
+    - [x] coach select via typeahead (search by first/last name; email fallback)
+    - [x] session type + optional title
+    - [x] multi-student picker
+    - [x] create and patch session requests send selected `staffUserId`
+    - [x] friendly conflict messages for `COURT_CONFLICT` / `STAFF_CONFLICT` / `STUDENT_CONFLICT`
+  - [x] delete confirmation dialog
+- [x] Students list (`/students`):
+  - [x] server-backed search
+  - [x] status filter (`ALL`/`ACTIVE`/`INACTIVE`)
+  - [x] create student modal (first name, last name, phone, DOB, status)
+  - [x] open profile action
+- [x] Student profile (`/students/[id]`):
+  - [x] view/edit personal and status fields
+  - [x] edit notes
+  - [x] admin-only create account action
+  - [x] one-time temporary password confirmation dialog after account creation
+- [x] Session completion (`/sessions/[id]/complete`):
+  - [x] per-student attendance
+  - [x] duration + RPE fields
+  - [x] live load preview (`duration * rpe`)
+  - [x] student notes + internal notes
+  - [x] submit completion payload to backend
+
+#### Admin pages and flows
+- [x] Billing (`/billing`):
+  - [x] month/year selectors
+  - [x] tabs: monthly table and overdue report
+  - [x] per-student status actions (`PAID`, `DUE`, `WAIVED`)
+- [x] Staff users (`/users`):
+  - [x] list staff users
+  - [x] create staff user (first name, last name, email, password, role, language)
+  - [x] edit staff user (first name, last name, role, language)
+  - [x] role labels with user-facing names (`Fitness trainer`)
+
+#### Student portal pages and flows
+- [x] Student home (`/student`): upcoming sessions summary (next sessions)
+- [x] Student schedule (`/student/schedule`): weekly navigation and per-day cards
+- [x] Student history (`/student/history`):
+  - [x] paginated history (`load more`)
+  - [x] attendance chip
+  - [x] duration, RPE, load and student notes visibility
+
+#### Current web gaps (explicit)
+- [ ] Student home membership status card not implemented yet
+- [ ] Staff student profile: recent sessions + load panel not implemented yet
+- [ ] Staff student profile: membership month panel not implemented yet
 
 ---
 
@@ -324,11 +411,97 @@ Acceptance criteria:
 - [ ] API client + auth token handling
 - [ ] i18n (RO/EN) matching web keys
 
+### 7.1.1 Prioritized delivery roadmap
+#### P0 — Student parity core (recommended first release)
+Goal: ship the student mobile app with parity for the web flows that already exist and are stable.
+
+- [ ] Auth foundation
+  - [ ] login
+  - [ ] persisted session
+  - [ ] `/me` bootstrap and role-aware redirect
+  - [ ] logout
+- [ ] Student home
+  - [ ] upcoming sessions list
+- [ ] Student schedule
+  - [ ] weekly navigation
+  - [ ] grouped sessions by day
+- [ ] Student history
+  - [ ] paginated history
+  - [ ] attendance, duration, RPE, load
+  - [ ] student-visible notes only
+- [ ] Shared mobile foundations needed by all screens
+  - [ ] loading / empty / error states
+  - [ ] snackbar / toast feedback
+  - [ ] RO/EN parity with web keys
+
+#### P0.5 — Student parity completion blockers / stretch items
+Goal: close student-facing gaps that are not fully present in web yet or can follow immediately after P0.
+
+- [ ] membership status on student home
+- [ ] membership status details screen/card if needed by product
+
+Note: this phase depends on finalizing the corresponding web/product behavior for membership in the student portal.
+
+#### P1 — Coach/staff operational mobile flows
+Goal: enable staff to operate daily from phone when away from desktop.
+
+- [ ] Today dashboard parity
+- [ ] Session completion parity
+- [ ] Minimal weekly schedule parity
+  - [ ] browse week schedule
+  - [ ] open session details
+  - [ ] create/edit session
+  - [ ] coach typeahead selector
+  - [ ] student picker
+  - [ ] conflict error handling
+
+#### P2 — Extended staff/admin parity
+Goal: bring the remaining desktop administration flows to mobile if product value justifies it.
+
+- [ ] Students management parity
+  - [ ] students list
+  - [ ] student profile edit
+  - [ ] admin create student account
+- [ ] Billing parity
+- [ ] Staff users parity
+- [ ] advanced UX polish
+  - [ ] keyboard-optimized session completion
+  - [ ] faster bulk actions
+  - [ ] offline-friendly enhancements (optional)
+
 ### 7.2 Student MVP (first mobile release)
 - [ ] Login
 - [ ] My Schedule (week)
 - [ ] Session history (load + student notes)
 - [ ] Membership status
+
+### 7.2.1 Mobile parity checklist from current web (P0)
+- [ ] Auth parity:
+  - [ ] login with same backend contract (`POST /auth/login`, `GET /me`)
+  - [ ] role-aware root redirect logic parity
+  - [ ] persistent auth + logout parity
+- [ ] Student Home parity (`/student`):
+  - [ ] upcoming sessions list (date/time, court, coach, session type, title)
+- [ ] Student Schedule parity (`/student/schedule`):
+  - [ ] week navigation prev/next/today
+  - [ ] per-day grouped sessions
+- [ ] Student History parity (`/student/history`):
+  - [ ] pagination (`limit`/`offset`, load more)
+  - [ ] attendance, duration, RPE, load, student notes
+  - [ ] never expose internal notes
+- [ ] i18n parity:
+  - [ ] reuse same translation keys as web (`RO` + `EN`)
+
+### 7.2.2 Staff/coach mobile parity candidates (derived from web, P1/P2)
+- [ ] Today dashboard parity (`/today`)
+- [ ] Week schedule parity (`/schedule`) including:
+  - [ ] create/edit session
+  - [ ] coach typeahead selector by first/last name
+  - [ ] student multi-select
+  - [ ] conflict error handling
+- [ ] Session completion parity (`/sessions/{id}/complete`)
+- [ ] Students parity (`/students`, `/students/{id}`)
+- [ ] Admin-only parity (P2 candidate): billing + staff users
 
 Acceptance criteria:
 - Student can do everything available in the student web portal on mobile.
