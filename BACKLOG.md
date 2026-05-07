@@ -604,3 +604,114 @@ A feature is “done” when:
 - RO/EN strings added
 - Basic tests added for core logic (conflicts, permissions)
 - Deployed to staging (or production) and smoke-tested
+
+---
+
+## 12) Coach-first RPE & Performance Tracking Plan (new chapter)
+Goal: make post-session completion extremely fast for coaches while producing high-quality performance data for professional tennis athletes.
+
+### 12.1 Product outcomes (target)
+- [ ] Coach can complete a full session in <= 60 seconds (target median <= 45s)
+- [ ] RPE capture rate >= 90% for completed sessions
+- [ ] Duration + RPE + load completeness >= 95%
+- [ ] Athlete profile surfaces actionable trends (not only raw history)
+
+Acceptance criteria:
+- Session completion speed and data completeness are measurable from application telemetry.
+
+### 12.2 RPE protocol standardization (data quality first)
+- [ ] Define and document one academy-wide RPE scale (1-10) with plain-language descriptors
+- [ ] Add in-app microcopy for each RPE band to reduce interpretation variance
+- [ ] Enforce valid range (`rpe` 1-10) and required fields (`attendance_status`, `duration_minutes`, `rpe` when present)
+- [ ] Record capture timing metadata (`captured_at`, optional `minutes_after_session_end`) for quality audits
+- [ ] Keep computed load server-side only: `load = duration_minutes * rpe`
+
+Acceptance criteria:
+- Staff sees a consistent RPE definition in web + mobile; backend rejects invalid RPE payloads.
+
+### 12.3 Coach speed UX plan (post-session flow)
+#### Phase A — MVP speedups
+- [ ] Default attendance to `PRESENT` for roster on open
+- [ ] Prefill `duration_minutes` from scheduled duration
+- [ ] Replace free numeric RPE typing with single-tap 1-10 selector
+- [ ] Add sticky primary CTA: Save session
+- [ ] Add progress indicator (`completed athletes / total athletes`)
+
+#### Phase B — Performance workflow accelerators
+- [ ] Quick actions: `apply to all`, `copy previous athlete`, `reset row`
+- [ ] Structured quick tags for notes (technical / physical / mental / recovery)
+- [ ] Optional voice-to-note input (phase 2)
+- [ ] Draft autosave and retry-safe submission
+
+Acceptance criteria:
+- Coaches can complete common 6-10 athlete sessions with mostly taps and minimal typing.
+
+### 12.4 Athlete performance model (beyond single-session load)
+Derived metrics (per athlete):
+- [ ] Weekly load (`sum(load)` last 7 days)
+- [ ] Rolling 28-day load
+- [ ] Acute:Chronic ratio (`7-day load / 28-day average weekly equivalent`)
+- [ ] Attendance compliance (% present vs scheduled)
+- [ ] Session monotony and strain (phase 2)
+
+Data model additions:
+- [ ] Add athlete daily/weekly aggregates table or materialized view strategy
+- [ ] Add metric provenance fields (time window start/end, recompute timestamp)
+- [ ] Backfill job for historical sessions
+
+Acceptance criteria:
+- Athlete profile shows trend metrics that update reliably after session completion.
+
+### 12.5 Coach dashboard + athlete profile deliverables
+- [ ] Coach dashboard card: today load, absent athletes, completion backlog
+- [ ] Athlete profile snapshot: weekly load, avg RPE, attendance %, current focus tags
+- [ ] Trend charts: 7-day and 28-day load curves, attendance trend
+- [ ] Recent session insights list with student-visible notes separated from internal insights
+- [ ] Risk/attention badges (phase 2): sudden load spikes, low attendance streaks
+
+Acceptance criteria:
+- Coaches can identify "who needs intervention today" in <= 10 seconds per athlete profile.
+
+### 12.6 Backend/API plan
+- [ ] Extend `POST /sessions/{id}/complete` contract for quick tags + capture metadata
+- [ ] Add read endpoints for athlete performance summary and trends
+- [ ] Add authorization checks so students never receive staff-only/internal analytics
+- [ ] Add tests for load calculations, rolling windows, and permission boundaries
+
+Acceptance criteria:
+- API serves coach analytics safely; student endpoints expose only student-safe fields.
+
+### 12.7 Web/mobile implementation plan (RO-first)
+- [ ] Web: optimize existing completion page for keyboard + single-click entry
+- [ ] Mobile: implement coach completion flow with thumb-zone controls and large tap targets
+- [ ] Reuse identical i18n keys (RO + EN) for RPE labels, quick tags, and trend labels
+- [ ] Add empty/error/loading states for all analytics cards
+
+Acceptance criteria:
+- Coach flow and terminology are consistent across web and mobile; Romanian copy is primary.
+
+### 12.8 Delivery phases and sequencing
+#### Sprint P1 (highest value)
+- [ ] RPE protocol + validation + server-side load hardening
+- [ ] Completion UX speedups (defaults, tap RPE, progress)
+- [ ] Basic athlete snapshot metrics (weekly load, avg RPE, attendance)
+
+#### Sprint P2
+- [ ] Rolling 28-day trends + profile charts
+- [ ] Quick tags + structured insight blocks
+- [ ] Data quality telemetry and completeness dashboards
+
+#### Sprint P3 (optional/premium)
+- [ ] Acute:chronic ratio monitoring
+- [ ] Risk flags and intervention queue
+- [ ] Voice notes and advanced workflow shortcuts
+
+### 12.9 Success measurement (must track)
+- [ ] Median and p90 session completion time
+- [ ] Missing-data rate (`duration`, `rpe`, `load`)
+- [ ] Coach correction rate (edits after first save)
+- [ ] Athlete profile weekly active usage by staff
+- [ ] % athletes with at least one updated focus theme per week
+
+Definition of done for this chapter:
+- Coach flow is measurably faster, RPE data is consistent, and athlete profiles provide actionable performance insight without leaking internal notes to students.
